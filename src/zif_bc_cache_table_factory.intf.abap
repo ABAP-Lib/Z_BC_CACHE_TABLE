@@ -7,10 +7,6 @@ interface ZIF_BC_CACHE_TABLE_FACTORY
       RETURNING
         VALUE(rv_result) TYPE REF TO data,
 
-    create_persistance
-      RETURNING
-        VALUE(rv_result) TYPE REF TO ZIF_BC_CACHE_PERSISTANCE,
-
     CREATE_S_CACHE_KEY_DATA
       RETURNING
         VALUE(rv_result) TYPE REF TO data,

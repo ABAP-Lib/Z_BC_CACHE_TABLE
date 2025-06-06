@@ -1,41 +1,34 @@
 class ZCL_BC_CACHE_TABLE_INC_AGGR definition
   public
-  ABSTRACT
+  abstract
   create public .
 
   " Agregação de dados de uma tabela 'original' para uma tabela 'cache'
   " acumulando saldos de forma incemental por periodo.
+public section.
 
-  public section.
+  types TY_REF_S_ORIGINAL type ref to DATA . " Registro com a estrutura original
 
-    TYPES:
-      ty_ref_s_original TYPE REF TO data. " Registro com a estrutura original
-
-    METHODS:
-
-      constructor
-        IMPORTING
-          iv_factory TYPE REF TO ZIF_BC_CACHE_TABLE_FACTORY,
-
-      add_insert
-        IMPORTING
-          iv_ref_s_original TYPE ty_ref_s_original,
-
-      add_update
-        IMPORTING
-          iv_ref_s_original_old TYPE ty_ref_s_original
-          iv_ref_s_original_new TYPE ty_ref_s_original,
-
-      add_delete
-        IMPORTING
-          iv_ref_s_original TYPE ty_ref_s_original,
-
-      update_cache.
-
+  methods CONSTRUCTOR
+    importing
+      !IV_FACTORY type ref to ZIF_BC_CACHE_TABLE_FACTORY
+      iv_persistance TYPE REF TO ZIF_BC_CACHE_PERSISTANCE.
+  methods ADD_INSERT
+    importing
+      !IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
+  methods ADD_UPDATE
+    importing
+      !IV_REF_S_ORIGINAL_OLD type TY_REF_S_ORIGINAL
+      !IV_REF_S_ORIGINAL_NEW type TY_REF_S_ORIGINAL .
+  methods ADD_DELETE
+    importing
+      !IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
+  methods UPDATE_CACHE .
   protected section.
 
     DATA:
-          lv_factory TYPE REF TO ZIF_BC_CACHE_TABLE_FACTORY.
+          lv_factory TYPE REF TO ZIF_BC_CACHE_TABLE_FACTORY,
+          lv_PERSISTANCE TYPE REF TO ZIF_BC_CACHE_PERSISTANCE.
 
     TYPES:
       ty_ref_t_original TYPE REF TO data, " Registro com a estrutura original
@@ -286,6 +279,8 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
     lv_ref_t_cache_updates = iv_factory->create_sorted_cache_table( ).
     lv_ref_t_cache_deletes = iv_factory->create_sorted_cache_table( ).
 
+    lv_persistance = iv_persistance.
+
   endmethod.
 
 
@@ -476,8 +471,6 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
     data(lv_ref_t_cache_keys_data) = me->get_ref_t_cach_data_frm_minseq(
       iv_ref_t_cache_min_seq = lv_ref_t_cache_min_seq
     ).
-
-    DATA(lv_persistance) = LV_FACTORY->create_persistance( ).
 
     lv_persistance->set_cache_min_seq_by_data(
       lv_ref_t_cache_min_seq
