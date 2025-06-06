@@ -107,51 +107,50 @@ public section.
 
     METHODS:
 
+      " faz agregação dos valores de iv_ref_s_cache, em iv_ref_s_aggregated_fields.
       aggregate_cache ABSTRACT
         IMPORTING
           iv_ref_s_cache TYPE ty_ref_s_cache
           iv_ref_s_aggregated_fields TYPE ty_ref_s_cache_aggr_fields,
 
+      " Obtem o nome do ultimo campo do conjunto data da chave do cache.
       get_cache_key_data_last_field ABSTRACT
         RETURNING
           VALUE(RV_RESULT) TYPE string,
 
+      " Elimina os registros que ficaram com delta nulo.
       delete_initial_cache ABSTRACT
         IMPORTING
           iv_ref_t_cache TYPE ty_ref_t_cache,
 
+      " Faz agregação de um registro de cache em outro.
+      " Deveriam ter a mesma chave.
       aggregate_cache_to_cache ABSTRACT
         IMPORTING
           iv_ref_s_cache_from type ty_ref_s_cache
           iv_ref_s_cache_to type ty_ref_s_cache,
 
+      " Faz agregação de um registro original num registro de cache.
+      " Deveriam ter a mesma chave.
       aggregate_original_to_cache ABSTRACT
         IMPORTING
           iv_ref_s_original type ty_ref_s_original
           iv_ref_s_cache type ty_ref_s_cache,
 
+      " Faz a operação inversa da agregação de um registro original
+      " num registro de cache.
+      " Deveriam ter a mesma chave.
       deaggregate_original_to_cache ABSTRACT
         IMPORTING
           iv_ref_s_original type ty_ref_s_original
           iv_ref_s_cache type ty_ref_s_cache,
 
+      " Obtém as chaves de um registro original, num registro de cache.
       get_cache_keys_from_orig ABSTRACT
         IMPORTING
           iv_ref_s_original TYPE ty_ref_s_original
         RETURNING
           VALUE(rv_result) TYPE ty_ref_s_cache.
-
-    " Optional redefinitions
-
-    METHODS:
-
-      lock_cache ABSTRACT
-        IMPORTING
-          iv_ref_s_cache TYPE ty_ref_s_cache,
-
-      unlock_cache ABSTRACT
-        IMPORTING
-          iv_ref_s_cache TYPE ty_ref_s_cache.
 
   private section.
 
@@ -194,12 +193,10 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
 
   METHOD add_operation.
 
-    DATA(lv_ref_s_cache) = me->get_or_insert_cache_from_orig(
+    rv_result = me->get_or_insert_cache_from_orig(
       iv_ref_s_original = iv_ref_s_original
       iv_ref_t_cache_sorted = iv_ref_t_cache_operation
     ).
-
-    me->lock_cache( lv_ref_s_cache ).
 
   endmethod.
 
@@ -221,7 +218,7 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
       iv_ref_s_original = iv_ref_s_original_new
     ).
 
-    me->deaggregate_original_to_cache(
+    me->aggregate_original_to_cache(
       iv_ref_s_original = iv_ref_s_original_new
       iv_ref_s_cache = lv_ref_s_cache_new
     ).
@@ -232,7 +229,7 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
   METHOD collect_cache_to_cache.
 
     FIELD-SYMBOLS:
-                   <LT_CACHE_FROM> TYPE TABLE,
+                   <LT_CACHE_FROM> TYPE SORTED TABLE,
                    <lt_cache_to> TYPE SORTED TABLE.
 
     ASSIGN IV_REF_T_CACHE_FROM->* to <LT_CACHE_FROM>.
