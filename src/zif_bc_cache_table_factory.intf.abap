@@ -3,6 +3,20 @@ interface ZIF_BC_CACHE_TABLE_FACTORY
 
   METHODS:
 
+    get_original_table_name
+      RETURNING
+        VALUE(rv_result) TYPE string,
+
+    " tabela original standard.
+    create_t_original
+      RETURNING
+        VALUE(rv_result) TYPE REF TO data,
+
+    " tabela original ordenada pela chave primaria.
+    create_t_original_sorted
+      RETURNING
+        VALUE(rv_result) TYPE REF TO data,
+
     create_s_cache
       RETURNING
         VALUE(rv_result) TYPE REF TO data,

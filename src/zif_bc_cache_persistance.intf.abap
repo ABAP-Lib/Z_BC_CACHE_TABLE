@@ -5,12 +5,6 @@ interface ZIF_BC_CACHE_PERSISTANCE
 
     save,
 
-    " locks the keys data defined by set_cache_min_seq_by_data
-    lock,
-
-    " unlock what was locked by lock.
-    unlock,
-
     " Agregate the record defined by iv_ref_s_cache_key_data and
     " iv_ref_s_cache_key_seq, reading the records retrieved by
     " select_current_cache_records and using the values in iv_ref_s_aggregated_fields

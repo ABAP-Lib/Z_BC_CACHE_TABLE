@@ -172,12 +172,6 @@ CLASS LCL_PERSISTANCE IMPLEMENTATION.
 
     endmethod.
 
-    METHOD ZIF_BC_CACHE_PERSISTANCE~lock.
-    endmethod.
-
-    METHOD ZIF_BC_CACHE_PERSISTANCE~unlock.
-    endmethod.
-
     METHOD ZIF_BC_CACHE_PERSISTANCE~aggr_or_create_cache_record.
 
 *        iv_ref_s_cache_key_data TYPE REF TO data
@@ -273,12 +267,6 @@ CLASS lcl_factory IMPLEMENTATION.
 
   ENDMETHOD.
 
-  METHOD ZIF_BC_CACHE_TABLE_FACTORY~create_persistance.
-
-    " @todo
-
-  ENDMETHOD.
-
   METHOD ZIF_BC_CACHE_TABLE_FACTORY~CREATE_S_CACHE_KEY_DATA.
 
     CREATE DATA RV_RESULT TYPE lcl_types=>TY_S_CACHE_key_data.
@@ -329,6 +317,14 @@ CLASS lcl_factory IMPLEMENTATION.
 endclass.
 
 class lcl_cache DEFINITION INHERITING FROM ZCL_BC_CACHE_TABLE_INC_AGGR.
+
+  PUBLIC SECTION.
+
+    METHODS:
+
+      lock_cache_records REDEFINITION,
+
+      unlock_cache_records REDEFINITION.
 
   PROTECTED SECTION.
 
@@ -382,6 +378,12 @@ class lcl_cache DEFINITION INHERITING FROM ZCL_BC_CACHE_TABLE_INC_AGGR.
 ENDCLASS.
 
 CLASS lcl_cache IMPLEMENTATION.
+
+  method lock_cache_records.
+  endmethod.
+
+  method unlock_cache_records.
+  endmethod.
 
   method aggregate_cache.
 

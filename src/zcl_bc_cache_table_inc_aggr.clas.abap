@@ -5,29 +5,57 @@ class ZCL_BC_CACHE_TABLE_INC_AGGR definition
 
   " Agregação de dados de uma tabela 'original' para uma tabela 'cache'
   " acumulando saldos de forma incemental por periodo.
-public section.
 
-  types TY_REF_S_ORIGINAL type ref to DATA . " Registro com a estrutura original
+  public section.
 
-  methods CONSTRUCTOR
-    importing
-      !IV_FACTORY type ref to ZIF_BC_CACHE_TABLE_FACTORY
-      iv_persistance TYPE REF TO ZIF_BC_CACHE_PERSISTANCE.
-  methods ADD_INSERT
-    importing
-      !IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
-  methods ADD_UPDATE
-    importing
-      !IV_REF_S_ORIGINAL_OLD type TY_REF_S_ORIGINAL
-      !IV_REF_S_ORIGINAL_NEW type TY_REF_S_ORIGINAL .
-  methods ADD_DELETE
-    importing
-      !IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
-  methods UPDATE_CACHE .
+    types TY_REF_S_ORIGINAL type ref to DATA . " Registro com a estrutura original
+
+    methods CONSTRUCTOR
+      importing
+        IV_FACTORY type ref to ZIF_BC_CACHE_TABLE_FACTORY
+        iv_persistance TYPE REF TO ZIF_BC_CACHE_PERSISTANCE.
+
+    " @pre LOCK was called before select IV_REF_S_ORIGINAL from DB
+    "      to assure that cache associated to IV_REF_S_ORIGINAL
+    "      is not modified by other process.
+    methods ADD_INSERT
+      importing
+        IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
+
+    " @pre LOCK was called before select IV_REF_S_ORIGINAL_OLD from DB
+    "      to assure that cache associated to IV_REF_S_ORIGINAL_OLD
+    "      is not modified by other process.
+    methods ADD_UPDATE
+      importing
+        IV_REF_S_ORIGINAL_OLD type TY_REF_S_ORIGINAL
+        IV_REF_S_ORIGINAL_NEW type TY_REF_S_ORIGINAL .
+
+    " @pre LOCK was called before select IV_REF_S_ORIGINAL from DB
+    "      to assure that cache associated to IV_REF_S_ORIGINAL
+    "      is not modified by other process.
+    methods ADD_DELETE
+      importing
+        IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL .
+
+    methods UPDATE_CACHE .
+
+    METHODS:
+
+      lock_cache_records ABSTRACT
+        importing
+          IV_REF_S_ORIGINAL type TY_REF_S_ORIGINAL
+          iv_wait TYPE abap_bool DEFAULT abap_true
+        RAISING
+          ZCX_BC_CACHE_TABLE_ERROR,
+
+      unlock_cache_records ABSTRACT.
+
+    DATA:
+          lv_factory TYPE REF TO ZIF_BC_CACHE_TABLE_FACTORY READ-ONLY.
+
   protected section.
 
     DATA:
-          lv_factory TYPE REF TO ZIF_BC_CACHE_TABLE_FACTORY,
           lv_PERSISTANCE TYPE REF TO ZIF_BC_CACHE_PERSISTANCE.
 
     TYPES:
@@ -473,8 +501,6 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
       lv_ref_t_cache_min_seq
     ).
 
-    lv_persistance->lock( ).
-
     lv_persistance->select_current_cache_records( ).
 
     FIELD-SYMBOLS:
@@ -544,8 +570,6 @@ CLASS ZCL_BC_CACHE_TABLE_INC_AGGR IMPLEMENTATION.
 *modify saldo_3_acum from lt_saldo_3_acum_atual
 *
     lv_persistance->save( ).
-
-    lv_persistance->unlock( ).
 
 
 *"(*) O controle transacional pode ser feito a nivel de chave. OK
