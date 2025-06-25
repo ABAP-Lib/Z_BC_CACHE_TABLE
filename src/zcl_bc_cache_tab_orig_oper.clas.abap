@@ -128,7 +128,7 @@ CLASS ZCL_BC_CACHE_TAB_ORIG_OPER IMPLEMENTATION.
 
     DATA(lv_ref_t_orig_from_db_sorted) = lv_original_selection->SELECT_FROM_DB(
       IV_FACTORY = LV_CACHE->LV_FACTORY
-      IV_REF_T_ORIGINAL = LV_REF_T_ORIGINAL
+      IV_REF_T_ORIGINAL = ref #( <LT_ORIGINAL> )
     ).
 
     FIELD-SYMBOLS:
